@@ -1,0 +1,8 @@
+title: Random Ability Toggler
+description: When going through a load, the abilities you own for Sora are randomly enabled/disabled. "Useful Abilities" have a 66% chance to be equipped, No Experience has a 10% chance, everything else if 50%. Growth will be force equipped in most non-combat rooms such as the GoA.
+assets:
+#Lua Script
+- name: scripts/RandomAbility.lua
+  method: copy
+  source:
+  - name: RandomAbility.lua
