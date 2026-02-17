@@ -356,6 +356,6 @@ if true then --Define current values for common addresses
 	PrevPlace = ReadShort(Now+0x30)
 end
 
-keepAbilities()
 KeepGrowth()
+keepAbilities()
 end
