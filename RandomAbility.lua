@@ -1,5 +1,6 @@
 function _OnInit()
 GameVersion = 0
+prevNow = 0
 end
 
 function GetVersion() --Define anchor addresses
@@ -11,24 +12,18 @@ elseif GAME_ID == 0x431219CC and ENGINE_TYPE == 'BACKEND' then --PC
 	if ReadString(0x9A9330,4) == 'KH2J' then --EGS
 		GameVersion = 2
 		print('GoA Epic Version - Random Ability Lua')
-		continue = 0x29FB500
 		Now = 0x0716DF8
 		Save = 0x09A9330
-		IsLoaded = 0x09BA310
 	elseif ReadString(0x9A98B0,4) == 'KH2J' then --Steam Global
 		GameVersion = 3
 		print('GoA Steam Global Version - Random Ability Lua')
-		continue = 0x29FB580
 		Now = 0x0717008
 		Save = 0x09A98B0
-		IsLoaded = 0x7134A0
 	elseif ReadString(0x9A98B0,4) == 'KH2J' then --Steam JP (same as Global for now)
 		GameVersion = 4
 		print('GoA Steam JP Version - Random Ability Lua')
-		continue = 0x29FA500
 		Now = 0x0717008
 		Save = 0x09A98B0
-		IsLoaded = 0x09B9850
 	elseif ReadString(0x9A7070,4) == "KH2J" or ReadString(0x9A70B0,4) == "KH2J" or ReadString(0x9A92F0,4) == "KH2J" then
 		GameVersion = -1
 		print("Epic Version is outdated. Please update the game.")
@@ -50,9 +45,9 @@ function BitNot(Address,Bit,Abs)
 end
 
 function keepAbilities()
-	local isLoaded = ReadByte(IsLoaded)
 	local doubleNegCount = 0
-    if ReadInt(continue+0xC) ~= prevContinue and isLoaded == 0 then
+	local checkedBerserk = false
+    if ReadShort(Now) ~= prevNow then
 		for Slot = 0,68 do
 			local Current = Save + 0x2544 + 2*Slot
 			local Ability = ReadShort(Current) & 0x0FFF
@@ -137,6 +132,8 @@ function keepAbilities()
 				if temp > 50 then
 					if Ability == 0x018A and doubleNegCount < 2 then
 						WriteShort(Current,Ability+0x8000)
+					elseif Ability == 0x018B and not checkedBerserk then
+						WriteShort(Current,Ability+0x8000)
 					elseif Ability ~= 0x018A then
 						WriteShort(Current,Ability+0x8000)
 					end
@@ -146,6 +143,9 @@ function keepAbilities()
 
 				if Ability == 0x018A then
 					doubleNegCount = doubleNegCount + 1
+				end
+				if Ability == 0x018B then
+					checkedBerserk = true
 				end
 			end
 
@@ -209,7 +209,7 @@ function keepAbilities()
 		end
     end
 
-	prevContinue = ReadInt(continue+0xC)
+	prevNow = ReadShort(Now)
 end
 
 function KeepGrowth()
@@ -345,16 +345,9 @@ if GameVersion == 0 then --Get anchor addresses
 elseif GameVersion < 0 then --Incompatible version
 	return
 end
-if true then --Define current values for common addresses
-	World  = ReadByte(Now+0x00)
-	Room   = ReadByte(Now+0x01)
-	Place  = ReadShort(Now+0x00)
-	Door   = ReadShort(Now+0x02)
-	Map    = ReadShort(Now+0x04)
-	Btl    = ReadShort(Now+0x06)
-	Evt    = ReadShort(Now+0x08)
-	PrevPlace = ReadShort(Now+0x30)
-end
+
+World  = ReadByte(Now+0x00)
+Room   = ReadByte(Now+0x01)
 
 KeepGrowth()
 keepAbilities()
