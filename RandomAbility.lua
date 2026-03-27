@@ -6,7 +6,9 @@ end
 function GetVersion() --Define anchor addresses
 if (GAME_ID == 0xF266B00B or GAME_ID == 0xFAF99301) and ENGINE_TYPE == "ENGINE" then --PCSX2
 	GameVersion = -1
-	print("Emulator version not supported, please delete this mod.")
+	print("GoA Emulator Version - Random Ability Lua")
+	Now = 0x032BAE0
+	Save = 0x032BB30
 elseif GAME_ID == 0x431219CC and ENGINE_TYPE == 'BACKEND' then --PC
 	OnPC = true
 	if ReadString(0x9A9330,4) == 'KH2J' then --EGS
